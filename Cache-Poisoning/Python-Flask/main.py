@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for, request, render_template
 from flask_sqlalchemy import SQLAlchemy
+import uuid
 
 app=Flask(__name__)
 
@@ -9,29 +10,23 @@ db = SQLAlchemy(app)
 
 class Content(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	title = db.Column(db.String(255), nullable=False)
-	content= db.Column(db.Text, nullable=False)
+	uuid = db.Column(db.String(50), nullable=False)
 
+def normalize_uuid(uuid: str):
+	uuid_l = list(uuid)
 @app.route('/status/<status_>/')
 def status(status_):
 	return render_template('status.html', message=status_)
 
-@app.route('/index/', methods=['GET','POST'])
+@app.route('/', methods=['GET','POST'])
 def index():
-	if request.method == "POST":
-		title = request.form['title']
-		content = request.form['content']
-		status_message = f"{title} Berhasil Ditambah"
-		new_content = Content(title=title, content=content)
-		db.session.add(new_content)
-		db.session.commit()
+	print("Request cookies: ", request.cookies)
+	print("Request args: ", request.args)
+	if "id" not in request.cookies:
+		unique_id = str(uuid.uuid4())
+		print(unique_id)
 
-		return redirect(url_for('status', status_=status_message))
-
-	contents = Content.query.all()
-	return render_template('index.html', contents=contents)
-
-
+	return f"Cookies: {request.cookies}, Request Args: {request.args}"
 
 if __name__ == "__main__":
 	app.run(debug=True)
