@@ -1,0 +1,3 @@
+<?php
+	$flag = "Enomarozi1";
+?>
